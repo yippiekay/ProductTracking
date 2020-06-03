@@ -25,8 +25,7 @@ namespace ProductTracking.DAL.EF
             modelBuilder.Entity<User>().HasData(
                 new User[]
                 {
-                    new User(){ Email = "bfmvsergey@gmail.com", Name = "Sergey", Password = "1234qwer", UserId = 1, RoleId = 1},
-                    new User(){ Email = "ex", Name = "Lex", Password = "1234", UserId = 2}
+                    new User(){ Id = 1, Email = "bfmvsergey@gmail.com", Name = "Sergey", Password = "1234qwer", RoleId = 1},
                 });
             modelBuilder.Entity<User>().Property(u => u.RoleId).HasDefaultValue(2);
 

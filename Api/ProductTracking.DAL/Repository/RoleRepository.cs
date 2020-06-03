@@ -5,7 +5,6 @@ using ProductTracking.DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ProductTracking.DAL.Repository
 {
@@ -20,21 +19,31 @@ namespace ProductTracking.DAL.Repository
 
         public void Create(Role item)
         {
-            db.Add(item);
+            db.Roles.Add(item);
         }
 
         public void Delete(int id)
         {
             var role = db.Roles.Find(id);
+
             if(role != null)
-            {
                 db.Roles.Remove(role);
-            }
         }
 
-        public IEnumerable<Role> Find(Func<Role, bool> predicate)
+        public void Update(Role item)
         {
-            return db.Roles.Where(predicate).ToList();
+            db.Entry(item).State = EntityState.Modified;
+        }
+
+        public IEnumerable <Role> Find(Func<Role, bool> predicate)
+        {
+            IQueryable<Role> users = db.Roles;
+            return users.Where(predicate).ToList();
+        }
+
+        public bool Any (int id)
+        {
+            return db.Roles.Any(c => c.Id == id);
         }
 
         public Role Get(int id)
@@ -45,11 +54,6 @@ namespace ProductTracking.DAL.Repository
         public IEnumerable<Role> GetAll()
         {
             return db.Roles.ToList();
-        }
-
-        public void Update(Role item)
-        {
-            db.Entry(item).State = EntityState.Modified;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace ProductTracking.DAL.Models
+﻿namespace ProductTracking.ViewModels
 {
-    public class Task
+    public class TaskViewModel
     {
         public int Id { get; set; }
 
@@ -9,9 +9,5 @@
         public int Price { get; set; }
 
         public string Currency { get; set; }
-
-        public int UserId { get; set; }
-
-        public User User { get; set; }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using ProductTracking.BLL.Infrastructure;
 using ProductTracking.BLL.Interfase;
 using ProductTracking.BLL.Models;
 using ProductTracking.DAL.Interfaces;
 using ProductTracking.DAL.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,65 +11,68 @@ namespace ProductTracking.BLL.Services
 {
     public class UserService : IService<UserDTO>
     {
-        private readonly IUnitOfWork database;
+        private readonly IUnitOfWork service;
         private readonly IMapper mapper;
 
-        public UserService(IUnitOfWork context, IMapper mapper)
+        public UserService(IUnitOfWork db, IMapper mapper)
         {
-            database = context;
+            service = db;
             this.mapper = mapper;
         }
 
         public void Create(UserDTO userDTO)
         {
             if (userDTO == null)
-            {
-                throw new ValidationException("user is not found", "");
-            }
-
-            database.Users.Create(mapper.Map<UserDTO, User>(userDTO));
-            database.Save();
+                throw new Exception("Impossible to create a new user");
+            
+            service.Users.Create(MapUserDtoToUser(userDTO));
+            service.Save();
         }
 
         public void Update(UserDTO userDTO)
         {
-            var user = mapper.Map<UserDTO, User>(userDTO);
-            if (user == null)
-            {
-                throw new ValidationException("user is not found", "");
-            }
+            if (!service.Users.Any(userDTO.Id)) 
+                throw new Exception("There is no such user");
 
-            database.Users.Update(user);
-            database.Save();
+            service.Users.Update(MapUserDtoToUser(userDTO));
+            service.Save();
         }
 
-        public void Delete(UserDTO userDTO)
+        public void Delete(int id)
         {
-            var user = database.Users.GetAll().FirstOrDefault(u => u.UserId == userDTO.UserId);
-            if (user != null)
-            {
-                throw new ValidationException("user is not found", "");
-            }
-
-            database.Users.Delete(user.UserId);
-            database.Save();
+            if (!service.Users.Any(id))
+                throw new Exception("There is no such user");
+            
+            service.Users.Delete(id);
+            service.Save();
         }
 
         public UserDTO Get(int id)
         {
-            var user = database.Users.GetAll().FirstOrDefault(u => u.UserId == id);
-            if (user == null)
-            {
-                throw new ValidationException("user is not found", "");
-            }
+            var user = service.Users.Get(id);
 
+            if (user == null)
+                throw new Exception("There is no such user");
+            
             return mapper.Map<User, UserDTO>(user);
         }
 
         public IEnumerable<UserDTO> GetAll()
         {
-            var users = database.Users.GetAll();
-            return mapper.Map<IEnumerable<User>, IEnumerable<UserDTO>>(users);
+            return mapper.Map<IEnumerable<User>, IEnumerable<UserDTO>>(service.Users.GetAll());
+        }
+
+        public bool Any(int id)
+        {
+            return service.Users.Any(id);
+        }
+
+        private User MapUserDtoToUser(UserDTO userDTO)
+        {
+            var user = mapper.Map<UserDTO, User>(userDTO);
+            var role = service.Roles.Find(r => r.Name.ToLower() == userDTO.Role.ToLower()).FirstOrDefault();
+            user.Role = role ?? throw new Exception("There is no such user");
+            return user;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace ProductTracking.ViewModels
 {
-    public class RegisterModel
+    public class RegistrationModel
     {
         [Required(ErrorMessage = "Enter Name")]
         public string Name { get; set; }
@@ -18,5 +18,8 @@ namespace ProductTracking.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords don't equals")]
         public string ConfirmPassword { get; set; }
+
+        [Required(ErrorMessage = "Enter role")]
+        public string Role { get; set; }
     }
 }

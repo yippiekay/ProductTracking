@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ProductTracking.BLL.Interfase
 {
@@ -8,6 +9,7 @@ namespace ProductTracking.BLL.Interfase
         T Get(int id);
         void Create(T item);
         void Update(T item);
-        void Delete(T item);
+        void Delete(int id);
+        bool Any(int id);
     }
 }

@@ -16,14 +16,14 @@ namespace ProductTracking.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        readonly IService<UserDTO> db;
+        readonly IService<UserDTO> service;
         
         public AccountController(IService<UserDTO> context)
         {
-            db = context;
+            service = context;
         }
 
-        [HttpPost("/token")]
+        [HttpPost("token")]
         public IActionResult Token(LoginModel loginModel)
         {
             var identity = GetIdentity(loginModel.Email, loginModel.Password);
@@ -58,7 +58,7 @@ namespace ProductTracking.Controllers
 
         private ClaimsIdentity GetIdentity(string username, string password)
         {
-            var userView =db.GetAll().FirstOrDefault(u => u.Email == username && u.Password == password);
+            var userView = service.GetAll().FirstOrDefault(u => u.Email == username && u.Password == password);
             
             if(userView != null)
             {

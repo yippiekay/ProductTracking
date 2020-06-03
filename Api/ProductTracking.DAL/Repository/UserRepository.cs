@@ -19,16 +19,25 @@ namespace ProductTracking.DAL.Repository
 
         public void Create(User item)
         {
-            db.Add(item);
+            db.Users.Add(item);
+        }
+
+        public void Update(User item)
+        {
+            db.Entry(item).State = EntityState.Modified;
         }
 
         public void Delete(int id)
         {
-            User user = db.Users.Find(id);
+            var user = db.Users.Find(id);
+
             if (user != null)
-            {
                 db.Users.Remove(user);
-            }
+        }
+
+        public bool Any(int id)
+        {
+            return db.Users.Any(c => c.Id == id);
         }
 
         public IEnumerable<User> Find(Func<User, bool> predicate)
@@ -38,17 +47,12 @@ namespace ProductTracking.DAL.Repository
 
         public User Get(int id)
         {
-            return db.Users.Find(id);
+            return db.Users.Include(u => u.Tasks).Include(u => u.Role).Where(u => u.Id == id).FirstOrDefault();
         }
 
         public IEnumerable<User> GetAll()
         {
-            return db.Users.ToList();
-        }
-
-        public void Update(User item)
-        {
-            db.Entry(item).State = EntityState.Modified;
+            return db.Users.Include(u => u.Tasks).Include(u => u.Role).ToList();
         }
     }
 }

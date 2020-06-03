@@ -36,9 +36,9 @@ namespace ProductTracking
             services.AddTransient<IUnitOfWork, EFUnitOfWork>();
             services.AddTransient<IMapper>(m => new Mapper(CreateConfiguration()));
             services.AddTransient<IService<UserDTO>, UserService>();
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
+            services.AddTransient<IService<RoleDTO>, RoleService>();
+            services.AddTransient<IService<TaskDTO>, TaskService>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
                     {
                         options.RequireHttpsMetadata = false;
                         options.TokenValidationParameters = new TokenValidationParameters
@@ -52,55 +52,44 @@ namespace ProductTracking
                             ValidateIssuerSigningKey = true,            // валидация ключа безопасности
                         };
                     });
-
-
             services.AddControllers();
-
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" }));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
             else
-            {
                 app.UseHsts();
-            }
+            
             //app.UseHttpsRedirection();
-            
             app.UseRouting();
-            
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            
             app.UseAuthentication();
             app.UseAuthorization();
-            
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
         }
 
         private static MapperConfiguration CreateConfiguration()
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<User, UserDTO>();
-                cfg.CreateMap<UserDTO, User>();
-                
+                cfg.CreateMap<User, UserDTO>()
+                    .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role.Name));
+                cfg.CreateMap<UserDTO, User>()
+                    .ForMember(dest => dest.Role, opt => opt.MapFrom(src => new Role { Name = src.Role }));
+                cfg.CreateMap<RegistrationModel, UserDTO>();
                 cfg.CreateMap<UserViewModel, UserDTO>();
                 cfg.CreateMap<UserDTO, UserViewModel>();
-                
+                cfg.CreateMap<Task, TaskDTO>();
+                cfg.CreateMap<TaskDTO, Task>();
+                cfg.CreateMap<TaskDTO, TaskViewModel>();
+                cfg.CreateMap<TaskViewModel, TaskDTO>();
+                cfg.CreateMap<CreateTaskModel, TaskDTO>();
             });
             return config; 
         }

@@ -1,20 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace ProductTracking.ViewModels
 {
     public class UserViewModel
     {
-        public int UserId { get; set; }
+        public int Id { get; set; }
 
-        [Required(ErrorMessage = "Укажите имя пользователя")]
         public string Name { get; set; }
 
-        [Required(ErrorMessage = "Введите Email")]
         public string Email { get; set; }
-
-        [Required(ErrorMessage = "Введите пароль")]
-        public string Password { get; set; }
-        
+ 
         public string Role { get; set; }
+
+        public List<TaskViewModel> Tasks { get; set; } = new List<TaskViewModel>();
     }
 }

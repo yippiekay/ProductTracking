@@ -9,7 +9,9 @@ namespace ProductTracking.DAL.Repository
     {
         private readonly ProductTrackingDbContext db;
         private UserRepository userRepository;
-      
+        private RoleRepository roleRepository;
+        private TaskRepository taskRepository;
+
         public EFUnitOfWork(ProductTrackingDbContext context)
         {
             db = context; 
@@ -22,6 +24,26 @@ namespace ProductTracking.DAL.Repository
                 if (userRepository == null)
                     userRepository = new UserRepository(db);
                 return userRepository;
+            }
+        }
+
+        public IRepository<Role> Roles
+        {
+            get
+            {
+                if (roleRepository == null)
+                    roleRepository = new RoleRepository(db);
+                return roleRepository;
+            }
+        }
+
+        public IRepository<Task> Tasks
+        {
+            get 
+            {
+                if (taskRepository == null)
+                    taskRepository = new TaskRepository(db);
+                return taskRepository;
             }
         }
 

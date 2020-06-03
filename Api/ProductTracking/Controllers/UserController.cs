@@ -4,83 +4,94 @@ using Microsoft.AspNetCore.Mvc;
 using ProductTracking.BLL.Interfase;
 using ProductTracking.BLL.Models;
 using ProductTracking.ViewModels;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ProductTracking.Controllers
 {
-    [Authorize(Roles = "admin")]
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Authorize(Roles = "admin")]
+    [Route("api/Account/admin/[controller]")]
     public class UserController : Controller
     {
-        readonly IService<UserDTO> db;
+        readonly IService<UserDTO> service;
         readonly IMapper mapper;
+        
         public UserController(IService<UserDTO> context, IMapper mapper)
         {
-            db = context;
+            service = context;
             this.mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserViewModel>> Get()
+        public ActionResult<IEnumerable<UserViewModel>> GetAll()
         {
-            return new ObjectResult(mapper.Map<IEnumerable<UserDTO>, IEnumerable<UserViewModel>>(db.GetAll()));
-        }
+            var user = service.GetAll();
 
-        // GET api/<controller>/5
+            return new ObjectResult(mapper.Map<IEnumerable<UserDTO>, IEnumerable<UserViewModel>>(user));
+        }
+      
         [HttpGet("{id}")]
         public ActionResult<UserViewModel> Get(int id)
         {
-            var user = db.GetAll().FirstOrDefault(u => u.UserId == id);
+            try
+            {
+                var user = service.Get(id);
 
-            if (user == null)
-                return NotFound();
-
-            return new ObjectResult(mapper.Map<UserDTO, UserViewModel>(user));
+                return new ObjectResult(mapper.Map<UserDTO, UserViewModel>(user));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        // POST api/<controller>
         [HttpPost]
-        public ActionResult<UserViewModel> Post(RegisterModel user)
+        public ActionResult<RegistrationModel> Create(RegistrationModel user)
         {
-            if (user == null)
+            try
             {
-                return BadRequest();
-            }
+                var userDTO = mapper.Map<RegistrationModel, UserDTO>(user);
+                service.Create(userDTO);
 
-            db.Create(mapper.Map<RegisterModel, UserDTO>(user));
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
-        public ActionResult<UserViewModel> Put(UserViewModel user)
+        [HttpPut]
+        public ActionResult<UserViewModel> Update(UserViewModel user)
         {
-            if (user == null || !db.GetAll().Any(u => u.UserId == user.UserId))
+            try
             {
-                return BadRequest();
+                service.Update(mapper.Map<UserViewModel, UserDTO>(user));
+
+                return Ok(user);
             }
-           
-            db.Update(mapper.Map<UserViewModel, UserDTO>(user));
-           
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        // DELETE api/<controller>/5
         [HttpDelete("{id}")]
         public ActionResult<UserViewModel> Delete(int id)
         {
-            var user = db.GetAll().FirstOrDefault(u => u.UserId == id);
-
-            if (user == null)
+            try
             {
-                return NotFound();
-            }
+                if (!service.Any(id))
+                    return NotFound();
 
-            db.Delete(user);
-           
-            return Ok(user);
+                service.Delete(id);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

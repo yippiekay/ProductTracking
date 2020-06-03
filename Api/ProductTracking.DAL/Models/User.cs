@@ -4,7 +4,7 @@ namespace ProductTracking.DAL.Models
 {
     public class User
     {
-        public int UserId { get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; }
 
@@ -13,6 +13,8 @@ namespace ProductTracking.DAL.Models
         public string Password { get; set; }
 
         public int RoleId { get; set; }
+
+        public Role Role { get; set; }
 
         public List<Task> Tasks { get; set; }
     }

@@ -1,6 +1,6 @@
-﻿namespace ProductTracking.DAL.Models
+﻿namespace ProductTracking.BLL.Models
 {
-    public class Task
+    public class TaskDTO
     {
         public int Id { get; set; }
 
@@ -10,8 +10,6 @@
 
         public string Currency { get; set; }
 
-        public int UserId { get; set; }
-
-        public User User { get; set; }
+        public UserDTO User { get; set; }
     }
 }
