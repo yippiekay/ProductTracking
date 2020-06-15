@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ProductTracking.Controllers
 {
@@ -58,7 +60,7 @@ namespace ProductTracking.Controllers
 
         private ClaimsIdentity GetIdentity(string username, string password)
         {
-            var userView = service.GetAll().FirstOrDefault(u => u.Email == username && u.Password == password);
+            var userView = service.GetAll().FirstOrDefault(u => u.Email == username && IsPasswordValid(password, u.Salt, u.PasswordHash));
             
             if(userView != null)
             {
@@ -73,6 +75,33 @@ namespace ProductTracking.Controllers
             }
 
             return null;    
+        }
+
+        // hashing
+        private byte[] ComputePasswordHash(string password, int salt)
+        {
+            byte[] saltBytes = new byte[4];
+            saltBytes[0] = (byte)(salt >> 24);
+            saltBytes[1] = (byte)(salt >> 16);
+            saltBytes[2] = (byte)(salt >> 8);
+            saltBytes[3] = (byte)(salt);
+
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+
+            byte[] preHashed = new byte[saltBytes.Length + passwordBytes.Length];
+            Buffer.BlockCopy(passwordBytes, 0, preHashed, 0, passwordBytes.Length);
+            Buffer.BlockCopy(saltBytes, 0, preHashed, passwordBytes.Length, saltBytes.Length);
+
+            SHA1 sha1 = SHA1.Create();
+            return sha1.ComputeHash(preHashed);
+        }
+
+        // password check with correct password
+        private bool IsPasswordValid(string passwordToValidate, int salt, byte[] correctPasswordHash)
+        {
+            byte[] hashedPassword = ComputePasswordHash(passwordToValidate, salt);
+
+            return hashedPassword.SequenceEqual(correctPasswordHash);
         }
     }
 }

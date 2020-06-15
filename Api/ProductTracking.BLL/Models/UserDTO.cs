@@ -10,7 +10,9 @@ namespace ProductTracking.BLL.Models
 
         public string Email { get; set; }
 
-        public string Password { get; set; }
+        public byte[] PasswordHash { get; set; }
+
+        public int Salt { get; set; }
 
         public string Role { get; set; }
 
